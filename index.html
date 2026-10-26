@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#171525" />
+  <title>Focusora</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">F</span><span>Focusora</span></div>
+      <nav id="nav">
+        <button class="nav-btn active" data-page="home">⌂ <span>Home</span></button>
+        <button class="nav-btn" data-page="focus">◷ <span>Focus</span></button>
+        <button class="nav-btn" data-page="goals">◎ <span>Goals</span></button>
+        <button class="nav-btn" data-page="friends">♧ <span>Friends</span></button>
+        <button class="nav-btn" data-page="groups">◈ <span>Groups</span></button>
+        <button class="nav-btn" data-page="tasks">✓ <span>Tasks</span></button>
+        <button class="nav-btn" data-page="stats">▥ <span>Stats</span></button>
+        <button class="nav-btn" data-page="settings">⚙ <span>Settings</span></button>
+      </nav>
+      <div class="sidebar-foot"><span class="status-dot"></span><span>Study mode</span></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><div class="eyebrow" id="eyebrow">TODAY</div><h1 id="page-title">Study smarter together.</h1></div>
+        <button class="avatar" id="profileAvatar">A</button>
+      </header>
+
+      <section id="page-home" class="page active"></section>
+      <section id="page-focus" class="page"></section>
+      <section id="page-goals" class="page"></section>
+      <section id="page-friends" class="page"></section>
+      <section id="page-groups" class="page"></section>
+      <section id="page-tasks" class="page"></section>
+      <section id="page-stats" class="page"></section>
+      <section id="page-settings" class="page"></section>
+    </main>
+  </div>
+
+  <div id="modal" class="modal hidden"><div class="modal-card"><button class="modal-close" id="modalClose">×</button><div id="modalBody"></div></div></div>
+  <div id="toast" class="toast"></div>
+  <script src="app.js"></script>
+</body>
+</html>

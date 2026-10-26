@@ -1,0 +1,23 @@
+-- Focusora database schema. Run this in a Supabase SQL editor when you want online sync.
+create extension if not exists pgcrypto;
+create table if not exists public.profiles (id uuid primary key references auth.users(id) on delete cascade, username text unique not null, display_name text not null, created_at timestamptz default now());
+create table if not exists public.friendships (id uuid primary key default gen_random_uuid(), requester uuid references public.profiles(id) on delete cascade, addressee uuid references public.profiles(id) on delete cascade, status text not null default 'pending', created_at timestamptz default now(), unique(requester, addressee));
+create table if not exists public.study_groups (id uuid primary key default gen_random_uuid(), owner_id uuid references public.profiles(id) on delete cascade, name text not null, target_minutes integer not null default 6000, created_at timestamptz default now());
+create table if not exists public.group_members (group_id uuid references public.study_groups(id) on delete cascade, user_id uuid references public.profiles(id) on delete cascade, role text not null default 'member', joined_at timestamptz default now(), primary key(group_id,user_id));
+create table if not exists public.goals (id uuid primary key default gen_random_uuid(), owner_id uuid references public.profiles(id) on delete cascade, group_id uuid references public.study_groups(id) on delete cascade, title text not null, target_minutes integer not null, created_at timestamptz default now());
+create table if not exists public.study_sessions (id uuid primary key default gen_random_uuid(), user_id uuid references public.profiles(id) on delete cascade, group_id uuid references public.study_groups(id) on delete set null, minutes integer not null, started_at timestamptz not null default now(), created_at timestamptz default now());
+create table if not exists public.tasks (id uuid primary key default gen_random_uuid(), user_id uuid references public.profiles(id) on delete cascade, title text not null, done boolean default false, created_at timestamptz default now());
+alter table public.profiles enable row level security; alter table public.friendships enable row level security; alter table public.study_groups enable row level security; alter table public.group_members enable row level security; alter table public.goals enable row level security; alter table public.study_sessions enable row level security; alter table public.tasks enable row level security;
+create policy "profiles readable" on public.profiles for select to authenticated using (true);
+create policy "own profile insert" on public.profiles for insert to authenticated with check (id=auth.uid());
+create policy "own profile update" on public.profiles for update to authenticated using (id=auth.uid());
+create policy "friendships visible to participants" on public.friendships for select to authenticated using (requester=auth.uid() or addressee=auth.uid());
+create policy "send friend request" on public.friendships for insert to authenticated with check (requester=auth.uid());
+create policy "update own friendship" on public.friendships for update to authenticated using (requester=auth.uid() or addressee=auth.uid());
+create policy "groups visible to members" on public.study_groups for select to authenticated using (owner_id=auth.uid() or exists(select 1 from public.group_members gm where gm.group_id=id and gm.user_id=auth.uid()));
+create policy "create own groups" on public.study_groups for insert to authenticated with check (owner_id=auth.uid());
+create policy "members visible" on public.group_members for select to authenticated using (user_id=auth.uid() or exists(select 1 from public.group_members gm where gm.group_id=group_members.group_id and gm.user_id=auth.uid()));
+create policy "join groups" on public.group_members for insert to authenticated with check (user_id=auth.uid());
+create policy "own goals" on public.goals for all to authenticated using (owner_id=auth.uid()) with check (owner_id=auth.uid());
+create policy "own sessions" on public.study_sessions for all to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
+create policy "own tasks" on public.tasks for all to authenticated using (user_id=auth.uid()) with check (user_id=auth.uid());
